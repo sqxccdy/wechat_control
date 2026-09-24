@@ -11,7 +11,7 @@ from PIL import Image
 def set_window_size_ex(hwnd, width, height, x=0, y=0):
     win32gui.SetWindowPos(
         hwnd,
-        win32con.HWND_TOP,   # 置顶
+        win32con.HWND_TOP,  # 置顶
         x, y,
         width, height,
         win32con.SWP_SHOWWINDOW
@@ -31,6 +31,7 @@ def find_wechat_hwnd():
 
     return None
 
+
 def set_foreground_window(hwnd):
     # 前置微信
     win32gui.SetForegroundWindow(hwnd)
@@ -43,7 +44,6 @@ def get_pos_by_hwnd(hwnd):
 
     logging.debug(f"窗口屏幕坐标: left={left}, top={top}, width={width}, height={height}")
     return left, top, width, height
-
 
 
 def screenshot_pillow():
@@ -108,3 +108,15 @@ def get_window_scale(hwnd):
     logging.debug(f"缩放: {scale:.2f}x ({scale * 100:.0f}%)")
     return scale
 
+
+def screenshot_by_hwnd(hwnd):
+    scale = get_window_scale(hwnd)
+    # 10个像素的相对位置是为了去掉windows自带的毛玻璃效果的边框
+    wechat_x, wechat_y, wechat_width, wechat_height = get_pos_by_hwnd(hwnd)
+    img = screenshot_pillow()
+    crop_x, crop_y = wechat_x + 10, wechat_y
+    crop_width, crop_height = wechat_width * scale - 20, wechat_height * scale
+    crop_box = (crop_x, crop_y, crop_x + crop_width, crop_y + crop_height)
+    cropped = img.crop(crop_box)
+    # cropped.show()
+    return cropped
