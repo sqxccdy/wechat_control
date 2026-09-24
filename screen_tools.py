@@ -1,13 +1,12 @@
 import ctypes
 import logging
-
 import win32api
 import win32con
 import win32gui
 import win32ui
 from PIL import Image
 
-
+WINDOW_SCALE = 1
 def set_window_size_ex(hwnd, width, height, x=0, y=0):
     win32gui.SetWindowPos(
         hwnd,
@@ -106,7 +105,14 @@ def get_window_scale(hwnd):
     dpi = ctypes.windll.user32.GetDpiForWindow(hwnd)
     scale = dpi / 96.0
     logging.debug(f"缩放: {scale:.2f}x ({scale * 100:.0f}%)")
+    global WINDOW_SCALE
+    WINDOW_SCALE = scale
     return scale
+
+
+def get_scale():
+    global WINDOW_SCALE
+    return WINDOW_SCALE
 
 
 def screenshot_by_hwnd(hwnd):

@@ -1,29 +1,36 @@
 import logging
+from pathlib import Path
 
 from PIL import Image, ImageFilter
 import imagehash
 
+from screen_tools import get_scale
 
-def same_pos_picture():
-    img = Image.open("input2.png")
 
-    scale = 1.5
-    wechat_width = 150 * scale
-    wechat_height = 30 * scale
-    wechat_x = 400 * scale
-    wechat_y = 20 * scale
+def same_pos_picture(source_img: Image,
+                     pos: tuple,
+                     anchor_point: Path,
+                     catch_mode: bool = False) -> bool:
+    scale = get_scale()
+    wechat_x, wechat_y, wechat_width, wechat_height = pos
+    wechat_width = wechat_width * scale
+    wechat_height = wechat_height * scale
+    wechat_x = wechat_x * scale
+    wechat_y = wechat_y * scale
 
-    crop_x, crop_y = wechat_x + 10, wechat_y
-    crop_width, crop_height = wechat_width - 20, wechat_height
+    crop_x, crop_y = wechat_x, wechat_y
+    crop_width, crop_height = wechat_width, wechat_height
     crop_box = (crop_x, crop_y, crop_x + crop_width, crop_y + crop_height)
-    cropped = img.crop(crop_box)
+    cropped = source_img.crop(crop_box)
 
-    img1 = Image.open("anchor_point/img_1.png").convert("RGB")
+    if catch_mode:
+        cropped.save(anchor_point)
+        return True
+
+    img1 = Image.open(anchor_point).convert("RGB")
     img2 = cropped.convert("RGB")
 
-
-    # 计算感知哈希（phash对缩放和轻微变形最鲁棒）
-    hash1 = imagehash.phash(img1, hash_size=16)  # 加大hash_size提升精度
+    hash1 = imagehash.phash(img1, hash_size=16)
     hash2 = imagehash.phash(img2, hash_size=16)
 
     distance = hash1 - hash2
