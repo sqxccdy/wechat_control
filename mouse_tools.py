@@ -75,10 +75,46 @@ def mouse_click():
 def click_screen(hwnd, x, y):
     from screen_tools import get_pos_by_hwnd
     left, top, width, height = get_pos_by_hwnd(hwnd)
+    logging.debug(f'width:{width}, height:{height}')
     if 0<= x <= width and 0<=y <= height:
         logging.debug(f'hwnd: {hwnd}, left: {left}, top: {top}')
         logging.debug(f'move cursor to: {left + x}, {top + y}')
         move_cursor(left + x, top + y)
         mouse_click()
     else:
-        raise RuntimeError('位置下标越界。检查脚本逻辑')
+        raise RuntimeError(f'位置下标越界。检查脚本逻辑. x:{x}, y:{y}')
+
+def move_screen(hwnd, x, y):
+    from screen_tools import get_pos_by_hwnd
+    left, top, width, height = get_pos_by_hwnd(hwnd)
+    logging.debug(f'width:{width}, height:{height}')
+    if 0<= x <= width and 0<=y <= height:
+        logging.debug(f'hwnd: {hwnd}, left: {left}, top: {top}')
+        logging.debug(f'move cursor to: {left + x}, {top + y}')
+        move_cursor(left + x, top + y)
+    else:
+        raise RuntimeError(f'位置下标越界。检查脚本逻辑. x:{x}, y:{y}')
+
+
+import ctypes
+import time
+
+# 声明 mouse_event 参数类型
+user32 = ctypes.windll.user32
+
+# mouse_event 参数
+MOUSEEVENTF_WHEEL = 0x0800
+
+def scroll_up(clicks=1):
+    """
+    鼠标滚轮向上滚
+    :param clicks: 滚动格数，1格约120单位
+    """
+    # 正数 = 向上滚，负数 = 向下滚
+    # 一格 = WHEEL_DELTA = 120
+    user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, clicks * 120, 0)
+
+def scroll_down(clicks=1):
+    """鼠标滚轮向下滚"""
+    user32.mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -clicks * 120, 0)
+
