@@ -16,7 +16,6 @@ from wechat_control.keyword_tools import send_ctrl_v, set_clipboard_text, delay,
 
 logging.basicConfig(level=logging.DEBUG)
 catch_mode = False
-
 anchor_point_root = pathlib.Path('anchor_point')
 if not anchor_point_root.exists():
     anchor_point_root.mkdir()
@@ -26,7 +25,7 @@ keyword_delay_seconds = 1.5
 # 微信窗口 宽，高，x，y
 wechat_init_pos = 1024, 800, 0, 0
 hwnd = find_wechat_hwnd()
-
+scale = get_window_scale(hwnd=hwnd)
 set_foreground_window(hwnd)
 set_window_size_ex(hwnd, *wechat_init_pos)
 
