@@ -26,7 +26,7 @@ keyword_delay_seconds = 1.5
 # 微信窗口 宽，高，x，y
 wechat_init_pos = 1024, 800, 0, 0
 hwnd = find_wechat_hwnd()
-scale = get_window_scale(hwnd)
+
 set_foreground_window(hwnd)
 set_window_size_ex(hwnd, *wechat_init_pos)
 

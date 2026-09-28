@@ -42,7 +42,6 @@ def update_ui():
 
     root.after(50, update_ui)
 
-
 dpi = ctypes.windll.user32.GetDpiForSystem()
 scale = 1.5
 print(scale)
@@ -55,10 +54,8 @@ def record_f2(event):
 
 def record_f3(event):
     records["F3"] = (round(current_x / scale, 2), round(current_y / scale, 2))
-
 def record_f4(event):
     records["F4"] = (round(current_x / scale, 2), round(current_y / scale, 2))
-
 # ========== 构建界面 ==========
 root = tk.Tk()
 root.title("鼠标坐标采集工具")
