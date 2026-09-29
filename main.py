@@ -8,13 +8,13 @@ import sys
 from discern_tools import same_pos_picture
 from mouse_tools import click_screen, scroll_up, move_screen
 from screen_tools import find_wechat_hwnd, set_foreground_window, set_window_size_ex, screenshot_by_hwnd, \
-    get_window_scale
+    get_window_scale, get_pos_by_hwnd
 from find_tools import find_template_bottom_up
 from identify_tools import anchor_identify
 from keyword_tools import send_ctrl_v, set_clipboard_text, delay, send_enter, get_clipboard_text, \
     send_ctrl_w
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.DEBUG)
 catch_mode = False
 anchor_point_root = pathlib.Path('anchor_point')
 if not anchor_point_root.exists():
@@ -23,14 +23,18 @@ if not anchor_point_root.exists():
 # 按键延迟
 keyword_delay_seconds = 2
 # 微信窗口 宽，高，x，y
-wechat_init_pos = 1024, 800, -10, 0
+wechat_box = 1024, 800
+wechat_pos = -10, 0
+wechat_init_pos = *wechat_box, *wechat_pos
 hwnd = find_wechat_hwnd()
 logging.info(f'hwnd:{hwnd}')
 scale = get_window_scale(hwnd=hwnd)
 logging.info(f'scale:{scale}')
 set_foreground_window(hwnd)
 set_window_size_ex(hwnd, *wechat_init_pos)
-
+if get_pos_by_hwnd(hwnd) != (*wechat_pos, *wechat_box):
+    logging.warning('微信未登录')
+    exit()
 def click_screen_with_check_pos(click_pos, check_pos, try_img, trys=0):
     if same_pos_picture(screenshot_by_hwnd(hwnd),
                         check_pos,
