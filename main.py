@@ -4,28 +4,30 @@
 import logging
 import pathlib
 import time
-
+import sys
 from discern_tools import same_pos_picture
 from mouse_tools import click_screen, scroll_up, move_screen
 from screen_tools import find_wechat_hwnd, set_foreground_window, set_window_size_ex, screenshot_by_hwnd, \
     get_window_scale
-from wechat_control.find_tools import find_template_bottom_up
-from wechat_control.identify_tools import anchor_identify
-from wechat_control.keyword_tools import send_ctrl_v, set_clipboard_text, delay, send_enter, get_clipboard_text, \
+from find_tools import find_template_bottom_up
+from identify_tools import anchor_identify
+from keyword_tools import send_ctrl_v, set_clipboard_text, delay, send_enter, get_clipboard_text, \
     send_ctrl_w
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARN)
 catch_mode = False
 anchor_point_root = pathlib.Path('anchor_point')
 if not anchor_point_root.exists():
     anchor_point_root.mkdir()
 
 # 按键延迟
-keyword_delay_seconds = 1.5
+keyword_delay_seconds = 2
 # 微信窗口 宽，高，x，y
-wechat_init_pos = 1024, 800, 0, 0
+wechat_init_pos = 1024, 800, -10, 0
 hwnd = find_wechat_hwnd()
+logging.info(f'hwnd:{hwnd}')
 scale = get_window_scale(hwnd=hwnd)
+logging.info(f'scale:{scale}')
 set_foreground_window(hwnd)
 set_window_size_ex(hwnd, *wechat_init_pos)
 
@@ -52,12 +54,12 @@ def click_link_package(horizontal_x):
     """封装点击连接的脚本"""
     set_window_size_ex(hwnd, *wechat_init_pos)
     same_pos_picture(screenshot_by_hwnd(hwnd),
-                     (horizontal_x, 590, 40, 40),
+                     (horizontal_x, 650, 40, 40),
                             anchor_point_root / 'avatar.png',
                             catch_mode=False)
 
     same_pos_picture(screenshot_by_hwnd(hwnd),
-                     (horizontal_x, 0, 40, 640),
+                     (horizontal_x, 0, 40, 800),
                             anchor_point_root / 'large.png',
                             catch_mode=True)
     avatar_pos, confidence = find_template_bottom_up(
@@ -71,20 +73,20 @@ def click_link_package(horizontal_x):
         horizontal_x-50,
         int((avatar_pos[1] + 20 )/ scale))
 
+click_screen_with_check_pos((130, 120), (300, 40, 120, 40), anchor_identify())
+click_screen_with_check_pos((530, 700), (300, 740, 200, 40), anchor_identify())
 
-click_screen_with_check_pos((130, 120), (238, 40, 120, 40), anchor_identify())
-click_screen_with_check_pos((530, 700), (270, 740, 200, 40), anchor_identify())
-set_clipboard_text("https://mp.weixin.qq.com/s/ldCed8VImYDtEohu5GuSZg")
+set_clipboard_text(sys.argv[1])
 delay(keyword_delay_seconds)(send_ctrl_v)()
 delay(keyword_delay_seconds)(send_enter)()
 try:
-    click_link_package(945)
+    click_link_package(940)
 except RuntimeError:
-    click_link_package(582)
+    click_link_package(576)
 
 delay(keyword_delay_seconds)(set_window_size_ex)(hwnd, *wechat_init_pos)
 # 打开公众号
-click_screen(hwnd, 740, 757)
+click_screen(hwnd, 710, 742)
 
 #滚轮到顶部
 move_screen(hwnd, 821, 405)
@@ -95,4 +97,5 @@ click_screen(hwnd, 866, 593)
 
 delay(keyword_delay_seconds)(click_screen)(hwnd, 916, 45)
 delay(keyword_delay_seconds)(click_screen)(hwnd, 873, 158)
-print('newlink', delay(keyword_delay_seconds)(get_clipboard_text)())
+delay(keyword_delay_seconds)(click_screen)(hwnd, 873, 120)
+print(delay(keyword_delay_seconds)(get_clipboard_text)())

@@ -39,6 +39,7 @@ def on_move(x, y):
     current_x = x
     current_y = y
 
+
 def start_mouse_listener():
     """只启动一次，永远不关"""
     listener = mouse.Listener(on_move=on_move)
@@ -99,6 +100,21 @@ def update_hwnd_display():
     else:
         hwnd_label.config(text="目标窗口: 未选择", fg="gray")
 
+
+def update_scale_display():
+    scale_label.config(text=f"DPI Scale: {scale:.2f}")
+
+
+def update_hwnd_display():
+    if target_hwnd:
+        hwnd_label.config(
+            text=f"目标窗口: {target_title}\nHWND: {target_hwnd}",
+            fg="green"
+        )
+    else:
+        hwnd_label.config(text="目标窗口: 未选择", fg="gray")
+
+
 def update_record_display():
     texts = []
     for k in records:
@@ -112,6 +128,7 @@ def make_record(key):
         records[key] = (int(current_x / scale), int(current_y / scale))
         update_record_display()
     return _
+
 
 # ========== 取窗体 ==========
 def start_pick_hwnd(event=None):
@@ -153,13 +170,14 @@ def capture_by_size(event=None):
         print("⚠️ 宽高必须大于 0")
         return
 
-    x1 = int(current_x )
-    y1 = int(current_y )
-    x2 = int((current_x + w) )
-    y2 = int((current_y + h) )
+    # pynput 已经是物理像素（因为设置了 DPI Awareness），直接用
+    x1 = int(current_x)
+    y1 = int(current_y)
+    x2 = int(current_x + w)
+    y2 = int(current_y + h)
 
-    print(f"📸 截图区域: ({x1}, {y1}) -> ({x2}, {y2})")
-
+    print(f"📸 截图区域（物理像素）: ({x1}, {y1}) -> ({x2}, {y2})")
+    make_record("F1")(event)  # 顺便记录点击点
     img = ImageGrab.grab(bbox=(x1, y1, x2, y2), all_screens=True)
 
     file_path = filedialog.asksaveasfilename(
